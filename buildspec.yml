@@ -6,9 +6,9 @@ phases:
       - echo Installing dependencies...
       - yum install -y jq maven
       - echo Logging in to Amazon ECR...
-      - ACCOUNT_ID=619071307284
+      - ACCOUNT_ID=047719630685
       - REGION=us-east-1
-      - REPO_NAME=spring-demo-ecr
+      - REPO_NAME=spring-boot
       - IMAGE_TAG=v1.$CODEBUILD_BUILD_NUMBER
       - aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin ${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com
 
@@ -16,6 +16,8 @@ phases:
     commands:
       - echo Building the JAR file...
       - mvn clean install
+      - echo Creating the ECR repo
+      - aws ecr create-repository --repository-name $REPO_NAME --region $REGION
       - echo Building Docker image...
       - docker build -t ${REPO_NAME}:${IMAGE_TAG} .
       - docker tag ${REPO_NAME}:${IMAGE_TAG} ${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com/${REPO_NAME}:${IMAGE_TAG}
